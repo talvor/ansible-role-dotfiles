@@ -1,18 +1,14 @@
 ---
-- name: Ensure git is installed (Fedora)
-  ansible.builtin.dnf:
+- name: Ensure git is installed
+  ansible.builtin.package:
     name: git
     state: present
-  when:
-    - ansible_os_family == 'RedHat'
   become: true
 
-- name: Ensure git is installed (Ubuntu)
-  ansible.builtin.apt:
-    name: git
+- name: Ensure Stow installed
+  ansible.builtin.package:
+    name: stow
     state: present
-  when:
-    - ansible_os_family == 'Debian'
   become: true
 
 - name: Ensure dotfiles repository is cloned locally
@@ -25,22 +21,6 @@
     accept_hostkey: "{{ dotfiles_repo_accept_hostkey }}"
   become: false
 
-- name: Ensure Stow installed (Ubuntu)
-  ansible.builtin.apt:
-    name: stow
-    state: present
-  when:
-    - ansible_os_family == 'Debian'
-  become: true
-
-- name: Ensure Stow installed (Fedora)
-  ansible.builtin.dnf:
-    name: stow
-    state: present
-  when:
-    - ansible_os_family == 'RedHat'
-  become: true
-
 - name: Build directories list
   vars:
     user_home: "{{ lookup('env', 'HOME') }}"
@@ -52,7 +32,7 @@
   become: false
 
 - name: Deploy dotfiles
-  with_items: '{{ files.files }}'
+  with_items: "{{ files.files }}"
   vars:
     user_home: "{{ lookup('env', 'HOME') }}"
   environment:
